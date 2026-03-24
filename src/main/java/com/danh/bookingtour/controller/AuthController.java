@@ -4,7 +4,7 @@ import com.danh.bookingtour.dto.AuthResponse;
 import com.danh.bookingtour.dto.LoginRequest;
 import com.danh.bookingtour.dto.RegisterRequest;
 import com.danh.bookingtour.entity.User;
-import com.danh.bookingtour.repository.UserRepository;
+import com.danh.bookingtour.mapper.UserMapper;
 import com.danh.bookingtour.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +26,7 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
     private final JwtUtil jwtUtil;
-    private final UserRepository userRepository;
+    private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/login")
@@ -41,10 +41,10 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
-        if (userRepository.existsByUsername(request.getUsername())) {
+        if (userMapper.existsByUsername(request.getUsername())) {
             return ResponseEntity.badRequest().build();
         }
-        if (userRepository.existsByEmail(request.getEmail())) {
+        if (userMapper.existsByEmail(request.getEmail())) {
             return ResponseEntity.badRequest().build();
         }
 
@@ -55,7 +55,7 @@ public class AuthController {
                 .role("ROLE_USER")
                 .build();
 
-        userRepository.save(user);
+        userMapper.save(user);
 
         final UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
         final String token = jwtUtil.generateToken(userDetails);
