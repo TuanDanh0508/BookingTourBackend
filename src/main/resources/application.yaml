@@ -5,9 +5,9 @@ spring:
   application:
     name: bookingtour
   datasource:
-    url: jdbc:postgresql://localhost:5432/bookingtour
+    url: jdbc:postgresql://localhost:5432/booking_tour
     username: postgres
-    password: password # Replace with your actual pg password if different
+    password: 0508 # Replace with your actual pg password if different
     driver-class-name: org.postgresql.Driver
   sql:
     init:
