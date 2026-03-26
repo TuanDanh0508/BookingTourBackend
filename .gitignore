@@ -31,3 +31,17 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Security - KHÔNG push các file nhạy cảm lên Git ###
+.env
+.env.*
+*.env
+!*.env.example
+
+# Không push file cấu hình PROD/Staging lên repo (chứa thông tin nhạy cảm)
+application-prod.yaml
+application-staging.yaml
+
+# Log files
+*.log
+logs/

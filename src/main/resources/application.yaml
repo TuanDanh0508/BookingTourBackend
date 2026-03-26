@@ -1,17 +1,11 @@
-server:
-  port: 8080
-
 spring:
   application:
     name: bookingtour
-  datasource:
-    url: jdbc:postgresql://localhost:5432/booking_tour
-    username: postgres
-    password: 0508 # Replace with your actual pg password if different
-    driver-class-name: org.postgresql.Driver
-  sql:
-    init:
-      mode: always # Always run schema.sql to ensure table exists
+  profiles:
+    active: dev # Mặc định chạy profile 'dev' khi code 
+
+server:
+  port: 8080
 
 mybatis:
   type-aliases-package: com.danh.bookingtour.entity
@@ -19,5 +13,5 @@ mybatis:
     map-underscore-to-camel-case: true
 
 jwt:
-  secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970 # 256-bit secret key
-  expiration: 86400000 # 1 day in ms
+  secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970} # Ưu tiên lấy từ biến môi trường JWT_SECRET
+  expiration: 86400000 # 1 day in ms mặc định

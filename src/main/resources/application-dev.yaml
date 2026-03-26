@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/booking_tour
+    username: postgres
+    password: 0508 
+    driver-class-name: org.postgresql.Driver
+  sql:
+    init:
+      mode: always # Ở môi trường dev, cho phép tự chạy schema.sql tạo bảng mồi
+
+logging:
+  level:
+    com.danh.bookingtour.mapper: DEBUG # In ra console các câu lệnh SQL thực thi để dễ debug
