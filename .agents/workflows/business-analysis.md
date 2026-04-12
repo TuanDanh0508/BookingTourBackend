@@ -16,8 +16,8 @@ Khi nhận được yêu cầu nghiệp vụ (từ khách hàng, product owner, 
 Khi nhận yêu cầu nghiệp vụ, hãy hỏi (hoặc tự xác định) đủ các thông tin sau:
 
 ### 1.1 Actor (Ai thực hiện?)
-- Khách hàng (ROLE_USER)?
-- Nhân viên / Admin (ROLE_ADMIN)?
+- Khách hàng (`ROLE_USER`)?
+- Nhân viên / Admin (`ROLE_ADMIN`)?
 - Hệ thống tự động (cron job, webhook)?
 
 ### 1.2 Phạm vi tính năng
@@ -40,6 +40,7 @@ Xác định các entity cần thiết và quan hệ giữa chúng.
 
 ```
 Entity: [Tên entity]
+├── Table: m_[tên] (master data) hoặc t_[tên] (transaction)
 ├── Attributes: [Các trường dữ liệu]
 ├── Relationships:
 │   ├── [Entity A] → [kiểu quan hệ: 1-1 / 1-N / N-N]
@@ -54,6 +55,7 @@ Entity: [Tên entity]
 
 ```
 Entity: Booking
+├── Table: t_booking
 ├── Attributes: id, user_id, tour_id, booking_date, total_price, status, created_at
 ├── Relationships:
 │   ├── User → 1-N (1 user có nhiều booking)
@@ -65,6 +67,11 @@ Entity: Booking
 └── Status Flow: PENDING → CONFIRMED → CANCELLED / COMPLETED
 ```
 
+### Quy ước đặt tên bảng hiện tại
+- `m_` prefix: Master data (VD: `m_client`, `m_tour`)
+- `users`: Bảng đặc biệt cho authentication, không có prefix
+- Tên cột: `snake_case`, MyBatis tự map sang `camelCase` trong Java
+
 ---
 
 ## Bước 3: Phân rã thành Task kỹ thuật
@@ -73,14 +80,17 @@ Với mỗi yêu cầu nghiệp vụ, map thành các task theo kiến trúc hi�
 
 | # | Task kỹ thuật | File cần tạo/sửa | Ưu tiên |
 |---|--------------|-----------------|---------|
-| 1 | Thêm bảng vào schema | `schema.sql` | 🔴 Cao |
+| 1 | Thêm bảng vào schema | `src/main/resources/schema.sql` | 🔴 Cao |
 | 2 | Tạo Entity class | `entity/Tour.java` | 🔴 Cao |
-| 3 | Tạo Mapper interface | `mapper/TourMapper.java` | 🔴 Cao |
-| 4 | Tạo DTO Request/Response | `dto/TourRequest.java` | 🔴 Cao |
-| 5 | Tạo Controller | `controller/TourController.java` | 🔴 Cao |
-| 6 | Cập nhật Security config | `config/SecurityConfig.java` | 🟡 Trung bình |
-| 7 | Xử lý lỗi nghiệp vụ | `exception/` hoặc trong Controller | 🟡 Trung bình |
-| 8 | Test API | Postman / curl | 🔵 Thấp |
+| 3 | Tạo Mapper **interface** | `mapper/TourMapper.java` | 🔴 Cao |
+| 4 | Tạo **XML Mapper** | `src/main/resources/mapper/TourMapper.xml` | 🔴 Cao |
+| 5 | Tạo DTO Request/Response | `dto/TourRequest.java`, `dto/TourResponse.java` | 🔴 Cao |
+| 6 | Tạo Controller | `controller/TourController.java` | 🔴 Cao |
+| 7 | Cập nhật Security config | `config/SecurityConfig.java` | 🟡 Trung bình |
+| 8 | Xử lý lỗi nghiệp vụ | Trong Controller hoặc `exception/` | 🟡 Trung bình |
+| 9 | Test API | Postman / curl (xem `/test-api`) | 🔵 Thấp |
+
+> Xem chi tiết cách thực hiện từng bước tại workflow `/add-feature`.
 
 ---
 
@@ -124,8 +134,9 @@ Sau khi phân tích, yêu cầu AI tạo danh sách task cụ thể theo format:
 ## Yêu cầu: [Tên tính năng]
 
 ### Must Have
-- [ ] Tạo bảng `tours` trong schema.sql
-- [ ] Tạo entity `Tour` + mapper `TourMapper`
+- [ ] Tạo bảng `m_tour` trong schema.sql
+- [ ] Tạo entity `Tour` + mapper interface `TourMapper`
+- [ ] Tạo XML mapper `TourMapper.xml`
 - [ ] API: GET /api/v1/tours (public)
 - [ ] API: POST /api/v1/bookings (ROLE_USER, cần JWT)
 
@@ -134,7 +145,7 @@ Sau khi phân tích, yêu cầu AI tạo danh sách task cụ thể theo format:
 - [ ] API: GET /api/v1/bookings/my (lịch sử của user hiện tại)
 
 ### Rủi ro
-- Cần thêm cột `available_slots` vào bảng `tours`
+- Cần thêm cột `available_slots` vào bảng `m_tour`
 - Logic tính giá cần xác nhận lại với business
 ```
 
@@ -143,8 +154,8 @@ Sau khi phân tích, yêu cầu AI tạo danh sách task cụ thể theo format:
 ## Checklist Phân tích Nghiệp vụ
 - [ ] Xác định Actor (user/admin/system)
 - [ ] Làm rõ Business Rules và trạng thái entity
-- [ ] Vẽ quan hệ giữa các entity
-- [ ] Phân rã thành task kỹ thuật (schema, entity, mapper, DTO, controller)
+- [ ] Vẽ quan hệ giữa các entity, xác định prefix bảng (`m_` vs `t_`)
+- [ ] Phân rã thành task kỹ thuật (schema → entity → mapper interface → XML mapper → DTO → controller)
 - [ ] Đánh giá độ phức tạp và rủi ro
 - [ ] Phân loại Must/Should/Could/Won't
 - [ ] Xác nhận lại với người yêu cầu trước khi code
