@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.danh.bookingtour.mapper.ClientMapper">
+
+    <select id="findAllActive" resultType="com.danh.bookingtour.entity.Client">
+        SELECT * FROM m_client
+        <where>
+            is_active = true
+            <if test="type != null">
+                AND type = #{type}
+            </if>
+        </where>
+        ORDER BY created_at DESC
+    </select>
+
+    <select id="findByIdActive" resultType="com.danh.bookingtour.entity.Client">
+        SELECT * FROM m_client WHERE id = #{id} AND is_active = true
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO m_client (name, type, contact_name, phone, email, address, description, is_active)
+        VALUES (#{name}, #{type}, #{contactName}, #{phone}, #{email}, #{address}, #{description}, #{isActive})
+    </insert>
+
+    <update id="update">
+        UPDATE m_client
+        SET name = #{name},
+            type = #{type},
+            contact_name = #{contactName},
+            phone = #{phone},
+            email = #{email},
+            address = #{address},
+            description = #{description}
+        WHERE id = #{id}
+    </update>
+
+    <update id="softDelete">
+        UPDATE m_client SET is_active = false WHERE id = #{id}
+    </update>
+
+    <select id="existsByNameAndType" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM m_client
+        WHERE name = #{name}
+          AND type = #{type}
+          AND id != COALESCE(#{excludeId}, -1)
+    </select>
+
+</mapper>
